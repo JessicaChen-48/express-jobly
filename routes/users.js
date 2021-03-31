@@ -25,6 +25,8 @@ const router = express.Router();
  *  {user: { username, firstName, lastName, email, isAdmin }, token }
  *
  * Authorization required: login
+ * 
+ * This route is for admins creating users, the rest are for normal users
  **/
 
 router.post("/", ensureLoggedIn, async function (req, res, next) {

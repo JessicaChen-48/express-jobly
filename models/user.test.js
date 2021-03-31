@@ -21,7 +21,7 @@ afterAll(commonAfterAll);
 
 /************************************** authenticate */
 
-describe("authenticate", function () {
+describe("authenticate a user", function () {
   test("works", async function () {
     const user = await User.authenticate("u1", "password1");
     expect(user).toEqual({
@@ -63,7 +63,7 @@ describe("register", function () {
     isAdmin: false,
   };
 
-  test("works", async function () {
+  test("register new user works", async function () {
     let user = await User.register({
       ...newUser,
       password: "password",
@@ -155,7 +155,7 @@ describe("get", function () {
 
 /************************************** update */
 
-describe("update", function () {
+describe("update user", function () {
   const updateData = {
     firstName: "NewF",
     lastName: "NewF",
@@ -163,7 +163,7 @@ describe("update", function () {
     isAdmin: true,
   };
 
-  test("works", async function () {
+  test("update user works", async function () {
     let job = await User.update("u1", updateData);
     expect(job).toEqual({
       username: "u1",

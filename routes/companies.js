@@ -22,6 +22,8 @@ const router = new express.Router();
  * Returns { handle, name, description, numEmployees, logoUrl }
  *
  * Authorization required: login
+ * 
+ * This makes a company
  */
 
 router.post("/", ensureLoggedIn, async function (req, res, next) {
@@ -44,6 +46,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * - nameLike (will find case-insensitive, partial matches)
  *
  * Authorization required: none
+ * Get all companies
  */
 
 router.get("/", async function (req, res, next) {
@@ -57,6 +60,7 @@ router.get("/", async function (req, res, next) {
  *   where jobs is [{ id, title, salary, equity }, ...]
  *
  * Authorization required: none
+ * Get info about one company
  */
 
 router.get("/:handle", async function (req, res, next) {
@@ -73,6 +77,8 @@ router.get("/:handle", async function (req, res, next) {
  * Returns { handle, name, description, numEmployees, logo_url }
  *
  * Authorization required: login
+ * 
+ * Update one company's information
  */
 
 router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
@@ -89,6 +95,8 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
 /** DELETE /[handle]  =>  { deleted: handle }
  *
  * Authorization: login
+ * 
+ * Delete a company
  */
 
 router.delete("/:handle", ensureLoggedIn, async function (req, res, next) {

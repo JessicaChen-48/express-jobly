@@ -17,7 +17,7 @@ afterAll(commonAfterAll);
 
 /************************************** create */
 
-describe("create", function () {
+describe("create a company", function () {
   const newCompany = {
     handle: "new",
     name: "New",
@@ -26,7 +26,7 @@ describe("create", function () {
     logoUrl: "http://new.img",
   };
 
-  test("works", async function () {
+  test("creating a company works", async function () {
     let company = await Company.create(newCompany);
     expect(company).toEqual(newCompany);
 
@@ -58,8 +58,8 @@ describe("create", function () {
 
 /************************************** findAll */
 
-describe("findAll", function () {
-  test("works: no filter", async function () {
+describe("findAll companies", function () {
+  test("finalAll companies works: no filter", async function () {
     let companies = await Company.findAll();
     expect(companies).toEqual([
       {
@@ -89,8 +89,8 @@ describe("findAll", function () {
 
 /************************************** get */
 
-describe("get", function () {
-  test("works", async function () {
+describe("get a company", function () {
+  test("get a company works", async function () {
     let company = await Company.get("c1");
     expect(company).toEqual({
       handle: "c1",
@@ -113,7 +113,7 @@ describe("get", function () {
 
 /************************************** update */
 
-describe("update", function () {
+describe("update a company", function () {
   const updateData = {
     name: "New",
     description: "New Description",
@@ -121,7 +121,7 @@ describe("update", function () {
     logoUrl: "http://new.img",
   };
 
-  test("works", async function () {
+  test("update a company works", async function () {
     let company = await Company.update("c1", updateData);
     expect(company).toEqual({
       handle: "c1",
@@ -141,7 +141,7 @@ describe("update", function () {
     }]);
   });
 
-  test("works: null fields", async function () {
+  test("update company works: null fields", async function () {
     const updateDataSetNulls = {
       name: "New",
       description: "New Description",
@@ -189,8 +189,8 @@ describe("update", function () {
 
 /************************************** remove */
 
-describe("remove", function () {
-  test("works", async function () {
+describe("remove a company", function () {
+  test("remove a company works", async function () {
     await Company.remove("c1");
     const res = await db.query(
         "SELECT handle FROM companies WHERE handle='c1'");
