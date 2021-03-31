@@ -114,7 +114,23 @@ describe("filter companies", function () {
       logoUrl: "http://c2.img"
     })
   })
-})
+
+  test("bad request if incorrect parameter given", async function () {
+    try {
+      await Company.filter({coffeeMachines:2, name:"C2"})
+    }catch(error){
+      expect(error instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("bad request if min > max", async function () {
+    try {
+      await Company.filter({maxEmployees: 2, minEmployees: 3})
+    }catch(error){
+      expect(error instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
 
 /************************************** get */
 

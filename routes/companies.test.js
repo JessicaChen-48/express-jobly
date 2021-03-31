@@ -66,6 +66,7 @@ describe("POST /companies", function () {
 /************************************** GET /companies */
 
 describe("GET /companies", function () {
+
   test("ok for anon", async function () {
     const resp = await request(app).get("/companies");
     expect(resp.body).toEqual({
@@ -91,8 +92,8 @@ describe("GET /companies", function () {
               description: "Desc3",
               numEmployees: 3,
               logoUrl: "http://c3.img",
-            },
-          ],
+            }
+          ]
     });
   });
 
@@ -106,6 +107,55 @@ describe("GET /companies", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(500);
   });
+
+  test("search and filter on get requests with one query param", async function () {
+    const resp = await request(app)
+                  .get("/companies?name=c1")
+    expect(resp.statusCode).toEqual(200)
+    expect(resp.body).toEqual({
+      companies:
+      [
+        {
+          handle: "c1",
+          name: "C1",
+          description: "Desc1",
+          numEmployees: 1,
+          logoUrl: "http://c1.img",
+        }
+      ]
+    })
+  })
+
+  test("search and filter on get requests with multiple query params", async function () {
+    const resp = await request(app)
+                  .get("/companies?name=c2&minEmployees=1")
+    expect(resp.statusCode).toEqual(200)
+    expect(resp.body).toEqual({
+      companies:
+      [
+        {
+          handle: "c2",
+          name: "C2",
+          description: "Desc2",
+          numEmployees: 2,
+          logoUrl: "http://c2.img",
+        }
+      ]
+    })
+  })
+
+  test("query parameter contains not valid search keyword", async function () {
+    const resp = await request(app)
+                .get("/companies?pingPongTables=3")
+    expect(resp.statusCode).toEqual(400);
+  })
+
+  test("min employees > max employees in query params", async function () {
+    const resp = await request(app)
+                .get("/companies?minEmployees=3000&maxEmployees=1")
+    expect(resp.statusCode).toEqual(400);
+  })
+
 });
 
 /************************************** GET /companies/:handle */

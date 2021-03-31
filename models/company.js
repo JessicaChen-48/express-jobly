@@ -66,7 +66,7 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]*/
   static async filter(params) {
     Company.checkCriteria(params);
-    let sqlStatement = Company.createJsToSql(params);
+    let {statement, values} = Company.createSearchSqlStatement(params);
 
     const querySql = `SELECT handle,
                              name,
@@ -74,11 +74,19 @@ class Company {
                              num_employees AS "numEmployees",
                              logo_url AS "logoUrl"
                         FROM companies
-                        WHERE ${sqlStatement}
-                      `;
-    const result = await db.query(querySql);
+                        WHERE ${statement}
+                      `
+    const result = await db.query(querySql, values);
     return result.rows;
   }
+
+  /** HELPER FUNCTION FOR FILTER
+   * 
+   * Checks the query parameters are either:
+   * name, minEmployees, or maxEmployees
+   * Also checks that minEmployees < maxEmployees
+   * Throws BadRequestError if data is invalid
+  */
 
   static checkCriteria(params) {
     const criteria = ["name", "minEmployees", "maxEmployees"];
@@ -95,23 +103,36 @@ class Company {
     }
   }
 
-  static createJsToSql(params) {
+  /** HELPER FUNCTION FOR FILTER 
+   * 
+   * Gets the query params
+   * Creates template for SQL query to search companies with valid filter
+   * 
+   * Sample return:
+   *   {statement: 'column = $1 AND column =$2', values: [value1, value2]}
+  */
+
+  static createSearchSqlStatement(params) {
     const {name, minEmployees, maxEmployees} = params;
     let sqlStatement = [];
+    let sqlValues = [];
 
     if (minEmployees) {
-      sqlStatement.push(`num_employees >= ${minEmployees}`);
+      sqlStatement.push(`num_employees >= $${sqlStatement.length +1}`);
+      sqlValues.push(parseInt(minEmployees));
     }
     if (maxEmployees) {
-      sqlStatement.push(`num_employees <= ${maxEmployees}`);
+      sqlStatement.push(`num_employees <= $${sqlStatement.length +1}`);
+      sqlValues.push(parseInt(maxEmployees));
     }
     if (name) {
-      sqlStatement.push(`name='${name}'`);
+      sqlStatement.push(`name ILIKE $${sqlStatement.length +1}`);
+      sqlValues.push(`%${name}%`)
     }
 
     let outStatement = sqlStatement.join(" AND ")
-    console.log(outStatement);
-    return outStatement;
+
+    return {statement: outStatement, values: sqlValues};
 
   }
 

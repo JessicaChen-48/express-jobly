@@ -50,10 +50,12 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  if (req.query) {
-    const companies = await Company.filter(req.query);
+  let companies;
+
+  if (Object.keys(req.query).length) {
+    companies = await Company.filter(req.query);
   } else {
-    const companies = await Company.findAll();
+    companies = await Company.findAll();
   }
   return res.json({ companies });
 });
