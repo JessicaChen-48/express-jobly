@@ -19,7 +19,7 @@ class User {
    * Returns { username, first_name, last_name, email, is_admin }
    *
    * Throws UnauthorizedError is user not found or wrong password.
-   * 
+   *
    * used in auth.js route
    **/
 
@@ -175,9 +175,9 @@ class User {
         });
     const usernameVarIdx = "$" + (values.length + 1);
 
-    const querySql = `UPDATE users 
-                      SET ${setCols} 
-                      WHERE username = ${usernameVarIdx} 
+    const querySql = `UPDATE users
+                      SET ${setCols}
+                      WHERE username = ${usernameVarIdx}
                       RETURNING username,
                                 first_name AS "firstName",
                                 last_name AS "lastName",

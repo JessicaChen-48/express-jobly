@@ -22,7 +22,7 @@ const router = new express.Router();
  * Returns { handle, name, description, numEmployees, logoUrl }
  *
  * Authorization required: login
- * 
+ *
  * This makes a company
  */
 
@@ -50,7 +50,11 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  const companies = await Company.findAll();
+  if (req.query) {
+    const companies = await Company.filter(req.query);
+  } else {
+    const companies = await Company.findAll();
+  }
   return res.json({ companies });
 });
 
@@ -77,7 +81,7 @@ router.get("/:handle", async function (req, res, next) {
  * Returns { handle, name, description, numEmployees, logo_url }
  *
  * Authorization required: login
- * 
+ *
  * Update one company's information
  */
 
@@ -95,7 +99,7 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
 /** DELETE /[handle]  =>  { deleted: handle }
  *
  * Authorization: login
- * 
+ *
  * Delete a company
  */
 

@@ -61,6 +61,60 @@ class Company {
     return companiesRes.rows;
   }
 
+  /**Finds companies that meet search parameters.
+   *  Throws error if not name, minEmployees, or maxEmployees
+   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]*/
+  static async filter(params) {
+    Company.checkCriteria(params);
+    let sqlStatement = Company.createJsToSql(params);
+
+    const querySql = `SELECT handle,
+                             name,
+                             description,
+                             num_employees AS "numEmployees",
+                             logo_url AS "logoUrl"
+                        FROM companies
+                        WHERE ${sqlStatement}
+                      `;
+    const result = await db.query(querySql);
+    return result.rows;
+  }
+
+  static checkCriteria(params) {
+    const criteria = ["name", "minEmployees", "maxEmployees"];
+    const {minEmployees, maxEmployees} = params
+    for (let key in params) {
+      if (criteria.indexOf(key) < 0) {
+        throw new BadRequestError("Invalid search criteria.");
+      }
+    }
+    if (minEmployees && maxEmployees) {
+      if (minEmployees > maxEmployees) {
+        throw new BadRequestError("Max employees must be greater than min employees");
+      }
+    }
+  }
+
+  static createJsToSql(params) {
+    const {name, minEmployees, maxEmployees} = params;
+    let sqlStatement = [];
+
+    if (minEmployees) {
+      sqlStatement.push(`num_employees >= ${minEmployees}`);
+    }
+    if (maxEmployees) {
+      sqlStatement.push(`num_employees <= ${maxEmployees}`);
+    }
+    if (name) {
+      sqlStatement.push(`name='${name}'`);
+    }
+
+    let outStatement = sqlStatement.join(" AND ")
+    console.log(outStatement);
+    return outStatement;
+
+  }
+
   /** Given a company handle, return data about company.
    *
    * Returns { handle, name, description, numEmployees, logoUrl, jobs }
@@ -108,13 +162,13 @@ class Company {
         });
     const handleVarIdx = "$" + (values.length + 1);
 
-    const querySql = `UPDATE companies 
-                      SET ${setCols} 
-                      WHERE handle = ${handleVarIdx} 
-                      RETURNING handle, 
-                                name, 
-                                description, 
-                                num_employees AS "numEmployees", 
+    const querySql = `UPDATE companies
+                      SET ${setCols}
+                      WHERE handle = ${handleVarIdx}
+                      RETURNING handle,
+                                name,
+                                description,
+                                num_employees AS "numEmployees",
                                 logo_url AS "logoUrl"`;
     const result = await db.query(querySql, [...values, handle]);
     const company = result.rows[0];
