@@ -90,7 +90,7 @@ class Company {
 
   static checkCriteria(params) {
     const criteria = ["name", "minEmployees", "maxEmployees"];
-    const {minEmployees, maxEmployees} = params
+    const {minEmployees, maxEmployees} = params;
     for (let key in params) {
       if (criteria.indexOf(key) < 0) {
         throw new BadRequestError("Invalid search criteria.");
@@ -127,10 +127,10 @@ class Company {
     }
     if (name) {
       sqlStatement.push(`name ILIKE $${sqlStatement.length +1}`);
-      sqlValues.push(`%${name}%`)
+      sqlValues.push(`%${name}%`);
     }
 
-    let outStatement = sqlStatement.join(" AND ")
+    let outStatement = sqlStatement.join(" AND ");
 
     return {statement: outStatement, values: sqlValues};
 

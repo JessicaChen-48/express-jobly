@@ -92,7 +92,7 @@ describe("findAll companies", function () {
 
 describe("filter companies", function () {
   test("find companies that match one query parameter successfully", async function () {
-    let companies = await Company.filter({minEmployees:3})
+    let companies = await Company.filter({minEmployees:3});
     expect(companies.length).toEqual(1);
     expect(companies[0]).toEqual({
       handle: "c3",
@@ -100,11 +100,11 @@ describe("filter companies", function () {
       description: "Desc3",
       numEmployees: 3,
       logoUrl: "http://c3.img",
-    })
-  })
+    });
+  });
 
   test("find companies that match multiple query params successfully", async function () {
-    let companies = await Company.filter({maxEmployees:2, name:"C2"})
+    let companies = await Company.filter({maxEmployees:2, name:"C2"});
     expect(companies.length).toEqual(1);
     expect(companies[0]).toEqual({
       handle: "c2",
@@ -112,12 +112,12 @@ describe("filter companies", function () {
       description: "Desc2",
       numEmployees: 2,
       logoUrl: "http://c2.img"
-    })
-  })
+    });
+  });
 
   test("bad request if incorrect parameter given", async function () {
     try {
-      await Company.filter({coffeeMachines:2, name:"C2"})
+      await Company.filter({coffeeMachines:2, name:"C2"});
     }catch(error){
       expect(error instanceof BadRequestError).toBeTruthy();
     }
@@ -125,7 +125,7 @@ describe("filter companies", function () {
 
   test("bad request if min > max", async function () {
     try {
-      await Company.filter({maxEmployees: 2, minEmployees: 3})
+      await Company.filter({maxEmployees: 2, minEmployees: 3});
     }catch(error){
       expect(error instanceof BadRequestError).toBeTruthy();
     }

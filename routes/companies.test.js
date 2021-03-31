@@ -110,8 +110,8 @@ describe("GET /companies", function () {
 
   test("search and filter on get requests with one query param", async function () {
     const resp = await request(app)
-                  .get("/companies?name=c1")
-    expect(resp.statusCode).toEqual(200)
+                  .get("/companies?name=c1");
+    expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       companies:
       [
@@ -123,13 +123,13 @@ describe("GET /companies", function () {
           logoUrl: "http://c1.img",
         }
       ]
-    })
-  })
+    });
+  });
 
   test("search and filter on get requests with multiple query params", async function () {
     const resp = await request(app)
-                  .get("/companies?name=c2&minEmployees=1")
-    expect(resp.statusCode).toEqual(200)
+                  .get("/companies?name=c2&minEmployees=1");
+    expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       companies:
       [
@@ -141,20 +141,20 @@ describe("GET /companies", function () {
           logoUrl: "http://c2.img",
         }
       ]
-    })
-  })
+    });
+  });
 
   test("query parameter contains not valid search keyword", async function () {
     const resp = await request(app)
-                .get("/companies?pingPongTables=3")
+                .get("/companies?pingPongTables=3");
     expect(resp.statusCode).toEqual(400);
-  })
+  });
 
   test("min employees > max employees in query params", async function () {
     const resp = await request(app)
-                .get("/companies?minEmployees=3000&maxEmployees=1")
+                .get("/companies?minEmployees=3000&maxEmployees=1");
     expect(resp.statusCode).toEqual(400);
-  })
+  });
 
 });
 
