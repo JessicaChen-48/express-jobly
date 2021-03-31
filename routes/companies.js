@@ -26,7 +26,7 @@ const router = new express.Router();
  * This makes a company
  */
 
-router.post("/", ensureAdmin, async function (req, res, next) {
+router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(req.body, companyNewSchema);
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);
@@ -87,7 +87,7 @@ router.get("/:handle", async function (req, res, next) {
  * Update one company's information
  */
 
-router.patch("/:handle", ensureAdmin, async function (req, res, next) {
+router.patch("/:handle", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(req.body, companyUpdateSchema);
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);
@@ -105,7 +105,7 @@ router.patch("/:handle", ensureAdmin, async function (req, res, next) {
  * Delete a company
  */
 
-router.delete("/:handle", ensureAdmin, async function (req, res, next) {
+router.delete("/:handle", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
   await Company.remove(req.params.handle);
   return res.json({ deleted: req.params.handle });
 });
