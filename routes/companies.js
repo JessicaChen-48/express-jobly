@@ -21,7 +21,7 @@ const router = new express.Router();
  *
  * Returns { handle, name, description, numEmployees, logoUrl }
  *
- * Authorization required: login
+ * Authorization required: admin
  *
  * This makes a company
  */
@@ -82,7 +82,7 @@ router.get("/:handle", async function (req, res, next) {
  *
  * Returns { handle, name, description, numEmployees, logo_url }
  *
- * Authorization required: login
+ * Authorization required: admin
  *
  * Update one company's information
  */
@@ -100,7 +100,7 @@ router.patch("/:handle", ensureLoggedIn, ensureAdmin, async function (req, res, 
 
 /** DELETE /[handle]  =>  { deleted: handle }
  *
- * Authorization: login
+ * Authorization: admin
  *
  * Delete a company
  */
