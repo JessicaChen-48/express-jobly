@@ -50,6 +50,18 @@ describe("create a job", function () {
     ]);
   });
 
+  test("create job with invalid company handle errors", async function () {
+    try {
+      await Job.create({
+        title: "new",
+        salary: 11,
+        equity: 0.01,
+        companyHandle: 'c123'
+      });
+    } catch (error) {
+      expect(error instanceof BadRequestError).toBeTruthy();
+    }
+  });
 
 });
 

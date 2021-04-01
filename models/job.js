@@ -9,11 +9,10 @@ class Job {
   /** Create a job posting */
 
   static async create({ title, salary, equity, companyHandle }) {
-    checkCompanyHandle(companyHandle);
+    await Job.checkCompanyHandle(companyHandle);
 
     const result = await db.query(
-      `
-    INSERT INTO jobs
+    `INSERT INTO jobs
     (title, salary, equity, company_handle)
     VALUES ($1, $2, $3, $4)
     RETURNING id, title, salary, equity, company_handle AS "companyHandle"`,
@@ -35,10 +34,10 @@ class Job {
       WHERE handle=$1`,
       [companyHandle]
     );
-    const company = result.rows[0]
+    const company = result.rows[0];
 
     if (!company) {
-      throw new BadRequestError("Company handle not found")
+      throw new BadRequestError("Company handle not found");
     }
   }
 
