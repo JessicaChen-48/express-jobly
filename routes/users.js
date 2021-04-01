@@ -78,6 +78,7 @@ router.get("/:username", ensureLoggedIn, ensureCorrectUserOrAdmin, async functio
  * Authorization required: login
  **/
 
+
 router.patch("/:username", ensureLoggedIn, ensureCorrectUserOrAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(req.body, userUpdateSchema);
   if (!validator.valid) {
@@ -85,10 +86,18 @@ router.patch("/:username", ensureLoggedIn, ensureCorrectUserOrAdmin, async funct
     throw new BadRequestError(errs);
   }
 
-
   const user = await User.update(req.params.username, req.body);
   return res.json({ user });
 });
+
+/** Allow user to apply for job */
+
+
+router.post("/:username/jobs/:id", ensureLoggedIn, ensureCorrectUserOrAdmin, async function (req, res, next) {
+  await applyForJob(req.params.username, req.params.id);
+
+  return res.json({applied: req.params.id});
+})
 
 
 /** DELETE /[username]  =>  { deleted: username }
