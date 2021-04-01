@@ -81,7 +81,7 @@ class Company {
   }
 
   /** HELPER FUNCTION FOR FILTER
-   * 
+   *
    * Checks the query parameters are either:
    * name, minEmployees, or maxEmployees
    * Also checks that minEmployees < maxEmployees
@@ -103,11 +103,11 @@ class Company {
     }
   }
 
-  /** HELPER FUNCTION FOR FILTER 
-   * 
+  /** HELPER FUNCTION FOR FILTER
+   *
    * Gets the query params
    * Creates template for SQL query to search companies with valid filter
-   * 
+   *
    * Sample return:
    *   {statement: 'column = $1 AND column =$2', values: [value1, value2]}
   */
@@ -139,7 +139,7 @@ class Company {
   /** Given a company handle, return data about company.
    *
    * Returns { handle, name, description, numEmployees, logoUrl, jobs }
-   *   where jobs is [{ id, title, salary, equity, companyHandle }, ...]
+   *   where jobs is [{ id, title, salary, equity }, ...]
    *
    * Throws NotFoundError if not found.
    **/
@@ -158,6 +158,17 @@ class Company {
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+
+    const jobRes = await db.query(
+      `SELECT id, title, salary, equity
+        FROM jobs
+        WHERE company_handle = $1`,
+        [handle]);
+
+    const jobs = jobRes.rows
+    if(jobs.length > 0) {
+      company.jobs = jobs;
+    }
 
     return company;
   }

@@ -30,7 +30,7 @@ class Job {
 
   static async checkCompanyHandle(companyHandle) {
     const result = await db.query(
-      `SELECT * FROM companies 
+      `SELECT * FROM companies
       WHERE handle=$1`,
       [companyHandle]
     );
@@ -132,15 +132,17 @@ class Job {
    * Returns {id, title, salary, equity, companyHandle}
    *
    * Throws NotFoundError if not found.
+   * Throws BadRequest if id is not integer
    */
   static async get(id) {
+    if (isNaN(parseInt(id))) throw new BadRequestError("Id must be integer");
+
     const result = await db.query(
       `SELECT id, title, salary, equity, company_handle AS "companyHandle"
             FROM jobs
             WHERE id = $1`,
       [id]
     );
-
     const job = result.rows[0];
 
     if (!job) throw new NotFoundError(`No job with id: ${id}.`);
@@ -159,7 +161,9 @@ class Job {
    * Throws NotFoundError if not found.
    */
   static async update(id, data) {
-    const { setCols, values } = sqlForPartialUpdate(data);
+    if (isNaN(parseInt(id))) throw new BadRequestError("Id must be integer");
+
+    const { setCols, values } = sqlForPartialUpdate(data, {});
     const idVarIdx = "$" + (values.length + 1);
     const querySql = `UPDATE jobs
                         SET ${setCols}
@@ -169,7 +173,7 @@ class Job {
                                   salary,
                                   equity,
                                   company_handle AS "companyHandle"`;
-    const result = await db.query(querySql, [...values, id]);
+    const result = await db.query(querySql, [...values, parseInt(id)]);
     const job = result.rows[0];
 
     if (!job) throw new NotFoundError(`No job with id: ${id}.`);
@@ -181,6 +185,8 @@ class Job {
    * Throws NotFoundError if company not found.
    */
   static async remove(id) {
+    if (isNaN(parseInt(id))) throw new BadRequestError("Id must be integer");
+
     const result = await db.query(
       `DELETE
           FROM jobs

@@ -111,7 +111,7 @@ describe("filter companies", function () {
       name: "C2",
       description: "Desc2",
       numEmployees: 2,
-      logoUrl: "http://c2.img"
+      logoUrl: "http://c2.img",
     });
   });
 
@@ -143,6 +143,7 @@ describe("get a company", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [{id: expect.any(Number), title:'j1', salary: 1, equity: null }]
     });
   });
 

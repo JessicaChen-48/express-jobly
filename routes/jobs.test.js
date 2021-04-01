@@ -177,12 +177,16 @@ describe("GET /jobs/:id", function () {
     const job = allJobs.body.jobs[0]
 
     const resp = await request(app).get(`/jobs/${job.id}`);
-    expect(resp.body).toEqual({job: job})
+    expect(resp.body).toEqual({job})
   });
 
+  test("bad request for string id", async function () {
+    const resp = await request(app).get(`/jobs/none`);
+    expect(resp.statusCode).toEqual(400);
+  });
 
   test("not found for no such job", async function () {
-    const resp = await request(app).get(`/jobs/nope`);
+    const resp = await request(app).get(`/jobs/0`);
     expect(resp.statusCode).toEqual(404);
   });
 
@@ -193,8 +197,7 @@ describe("GET /jobs/:id", function () {
 describe("PATCH /jobs/:id", function () {
   test("works for admins", async function () {
     const allJobs = await request(app).get("/jobs")
-    const {id, salary, equity, companyHandle} = allJobs.body.jobs[0]
-
+    const {id} = allJobs.body.jobs[0]
     const resp = await request(app)
         .patch(`/jobs/${id}`)
         .send({
@@ -203,11 +206,8 @@ describe("PATCH /jobs/:id", function () {
         .set("authorization", `Bearer ${u2Token}`);
     expect(resp.body).toEqual({
       job: {
-        id: id,
-        title: "j1-new",
-        salary: salary,
-        equity: equity,
-        companyHandle: companyHandle
+        ...allJobs.body.jobs[0],
+        title: "j1-new"
       },
     });
   });
@@ -237,12 +237,22 @@ describe("PATCH /jobs/:id", function () {
 
   test("not found on no such company", async function () {
     const resp = await request(app)
-        .patch(`/jobs/nope`)
+        .patch(`/jobs/0`)
         .send({
           title: "new nope",
         })
         .set("authorization", `Bearer ${u2Token}`);
     expect(resp.statusCode).toEqual(404);
+  });
+
+  test("bad request on string id", async function () {
+    const resp = await request(app)
+        .patch(`/jobs/nope`)
+        .send({
+          title: "new nope",
+        })
+        .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(400);
   });
 
   test("bad request on handle change attempt", async function () {
@@ -301,8 +311,15 @@ describe("DELETE /jobs/:id", function () {
 
   test("not found for no such company", async function () {
     const resp = await request(app)
-        .delete(`/jobs/nope`)
+        .delete(`/jobs/0`)
         .set("authorization", `Bearer ${u2Token}`);
     expect(resp.statusCode).toEqual(404);
+  });
+
+  test("bad request for string id", async function () {
+    const resp = await request(app)
+        .delete(`/jobs/nope`)
+        .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(400);
   });
 });

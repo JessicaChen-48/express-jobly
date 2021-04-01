@@ -15,19 +15,18 @@ const jobUpdateSchema = require("../schemas/jobUpdate.json");
 const router = new express.Router();
 
 /** POST / { job } => { job }
- * 
+ *
  * job should be { id, title, salary, equity, companyHandle }
- * 
+ *
  * Returns { id, title, salary, equity, companyHandle }
- * 
+ *
  * Authorization required: admin
- * 
+ *
  * This makes a job
 */
 
 router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(req.body, jobNewSchema);
-  console.log(validator.valid)
   if (!validator.valid) {
     const errs = validator.errors.map(e => e.stack);
     throw new BadRequestError(errs);
