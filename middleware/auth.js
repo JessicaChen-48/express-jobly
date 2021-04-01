@@ -56,9 +56,10 @@ function ensureAdmin(req, res, next) {
 
 async function ensureCorrectUserOrAdmin(req,res,next) {
   try {
-    const user = await User.get(req.params.username);
-    if (res.locals.user.username != user.username
+
+    if (res.locals.user.username != req.params.username
          && !res.locals.user.isAdmin) {
+      const user = await User.get(req.params.username);
       throw new UnauthorizedError();
     }
     return next();
