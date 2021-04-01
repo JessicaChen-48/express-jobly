@@ -141,6 +141,15 @@ describe("POST /users", function () {
   });
 });
 
+/************************************** POST /users/:username/jobs/:id */
+describe("POST /users/:username/jobs/:id", function () {
+  test("works for admins", async function () {
+    const resp = await request(app)
+    .post("/users")
+    .set("authorization", `Bearer ${u2Token}`);
+  });
+});
+
 /************************************** GET /users */
 
 describe("GET /users", function () {

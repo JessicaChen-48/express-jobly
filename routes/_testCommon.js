@@ -73,6 +73,12 @@ async function commonBeforeAll() {
     equity: 0,
     companyHandle: "c2"
   }); 
+  let jobs = await Job.findAll()
+  let jobId = jobs[0].id
+  await User.applyForJob({
+    username: "u1",
+    jobId: jobId
+  });
 }
 
 async function commonBeforeEach() {
