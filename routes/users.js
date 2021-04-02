@@ -94,9 +94,10 @@ router.patch("/:username", ensureLoggedIn, ensureCorrectUserOrAdmin, async funct
 
 
 router.post("/:username/jobs/:id", ensureLoggedIn, ensureCorrectUserOrAdmin, async function (req, res, next) {
-  await applyForJob(req.params.username, req.params.id);
+  
+  const application = await User.applyForJob(req.params.username, req.params.id);
 
-  return res.json({applied: req.params.id});
+  return res.json({applied: application.jobId});
 })
 
 

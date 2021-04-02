@@ -136,7 +136,7 @@ class User {
            WHERE username = $1`,
       [username]
     );
-
+    
     const user = userRes.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
@@ -171,7 +171,7 @@ class User {
       `SELECT username, job_id
        FROM applications
        WHERE username = $1 AND job_id=$2`,
-      [username, jobId]
+      [username, parseInt(jobId)]
     );
 
     if (duplicateCheck.rows[0])
@@ -183,7 +183,7 @@ class User {
       `INSERT INTO  applications (username, job_id)
       VALUES ($1, $2)
       RETURNING username, job_id AS "jobId"`,
-      [username, jobId]
+      [username, parseInt(jobId)]
     );
 
     const application = res.rows[0];

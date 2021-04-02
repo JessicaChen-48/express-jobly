@@ -12,7 +12,8 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
-  u2Token
+  u2Token,
+  u3Token
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -143,10 +144,72 @@ describe("POST /users", function () {
 
 /************************************** POST /users/:username/jobs/:id */
 describe("POST /users/:username/jobs/:id", function () {
+
   test("works for admins", async function () {
+    let job = await db.query(`SELECT id FROM jobs`);
+    let jobId = job.rows[0].id;
+  
     const resp = await request(app)
-    .post("/users")
+    .post(`/users/u1/jobs/${jobId}`)
     .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({applied: jobId});
+  });
+
+  test("works for self", async function () {
+
+    let job = await db.query(`SELECT id FROM jobs`);
+    let jobId = job.rows[0].id;
+  
+    const resp = await request(app)
+    .post(`/users/u1/jobs/${jobId}`)
+    .set("authorization", `Bearer ${u1Token}`);
+
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({applied: jobId});
+  });
+
+  test("unauth for not self", async function () {
+
+    let job = await db.query(`SELECT id FROM jobs`);
+    let jobId = job.rows[0].id;
+  
+    const resp = await request(app)
+    .post(`/users/u3/jobs/${jobId}`)
+    .set("authorization", `Bearer ${u1Token}`);
+
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("not found error for username not found", async function () {
+
+    let job = await db.query(`SELECT id FROM jobs`);
+    let jobId = job.rows[0].id;
+  
+    const resp = await request(app)
+    .post(`/users/u4/jobs/${jobId}`)
+    .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(404);
+  });
+
+  test("not found error for job id not found", async function () {
+
+    const resp = await request(app)
+    .post(`/users/u1/jobs/0`)
+    .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(404);
+  });
+
+  test("bad request error for string job id", async function () {
+  
+    const resp = await request(app)
+    .post(`/users/u3/jobs/suchacooljob`)
+    .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(400);
   });
 });
 
@@ -178,7 +241,7 @@ describe("GET /users", function () {
           firstName: "U3F",
           lastName: "U3L",
           email: "user3@user.com",
-          isAdmin: false,
+          isAdmin: false
         },
       ],
     });
@@ -212,7 +275,23 @@ describe("GET /users", function () {
 /************************************** GET /users/:username */
 
 describe("GET /users/:username", function () {
-  test("works for self user", async function () {
+  test("works for self user with job applications", async function () {
+    const resp = await request(app)
+        .get(`/users/u3`)
+        .set("authorization", `Bearer ${u3Token}`);
+    expect(resp.body).toEqual({
+      user: {
+        username: "u3",
+        firstName: "U3F",
+        lastName: "U3L",
+        email: "user3@user.com",
+        isAdmin: false,
+        jobs: [expect.any(Number)]
+      },
+    });
+  });
+
+  test("works for self user without job applications", async function () {
     const resp = await request(app)
         .get(`/users/u1`)
         .set("authorization", `Bearer ${u1Token}`);
@@ -222,7 +301,7 @@ describe("GET /users/:username", function () {
         firstName: "U1F",
         lastName: "U1L",
         email: "user1@user.com",
-        isAdmin: false,
+        isAdmin: false
       },
     });
   });
