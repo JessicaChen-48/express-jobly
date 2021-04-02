@@ -11,6 +11,7 @@ const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
+const updateApplicationSchema = require("../schemas/updateApplication.json");
 
 const router = express.Router();
 
@@ -90,7 +91,12 @@ router.patch("/:username", ensureLoggedIn, ensureCorrectUserOrAdmin, async funct
   return res.json({ user });
 });
 
-/** Allow user to apply for job */
+/** Allow user to apply for job 
+ * 
+ * POST /[username]/jobs/[id] => {applied: jobId}
+ * 
+ * Authorization: admin or user
+*/
 
 
 router.post("/:username/jobs/:id", ensureLoggedIn, ensureCorrectUserOrAdmin, async function (req, res, next) {
@@ -98,12 +104,30 @@ router.post("/:username/jobs/:id", ensureLoggedIn, ensureCorrectUserOrAdmin, asy
   const application = await User.applyForJob(req.params.username, req.params.id);
 
   return res.json({applied: application.jobId});
-})
+});
+
+/** Allow admin to update job current state for users 
+ * 
+ * PATCH /[username]/jobs/[id] {newState} => {username, jobId, currentState}
+ * 
+ * Authorization required: admin
+*/
+
+router.patch("/:username/jobs/:id", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
+  const validator = jsonschema.validate(req.body, updateApplicationSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const application = await User.updateJobApplication(req.params.usern, req.params.id, req.body.newState);
+  return res.json({application})
+});
 
 
 /** DELETE /[username]  =>  { deleted: username }
  *
- * Authorization required: login
+ * Authorization required: admin or user
  **/
 
 router.delete("/:username", ensureLoggedIn, ensureCorrectUserOrAdmin, async function (req, res, next) {
