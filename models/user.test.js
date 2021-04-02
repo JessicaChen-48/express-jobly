@@ -222,10 +222,8 @@ describe("update job application state", function () {
       let {username, jobId} = appRes.rows[0];
       await User.updateJobApplication(username, jobId, 'nope');
     } catch (error) {
-      console.log("ERROR UPDATING JOB", error)
       expect(error.message).toContain("invalid input value for enum state:")
     }
-
   });
 
 });

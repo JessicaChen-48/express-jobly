@@ -120,7 +120,7 @@ router.patch("/:username/jobs/:id", ensureLoggedIn, ensureAdmin, async function 
     throw new BadRequestError(errs);
   }
 
-  const application = await User.updateJobApplication(req.params.usern, req.params.id, req.body.newState);
+  const application = await User.updateJobApplication(req.params.username, req.params.id, req.body.newState);
   return res.json({application})
 });
 

@@ -208,7 +208,7 @@ class User {
     const result = await db.query(
         `SELECT username, job_id, current_state 
         FROM applications
-        WHERE username=$1 AND job_id=$2`, [username, jobId]
+        WHERE username=$1 AND job_id=$2`, [username, parseInt(jobId)]
     );
     const application = result.rows[0];
 

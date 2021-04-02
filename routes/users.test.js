@@ -213,6 +213,86 @@ describe("POST /users/:username/jobs/:id", function () {
   });
 });
 
+/************************************** PATCH /users/:username/jobs/:id */
+describe("PATCH /users/:username/jobs/:id", function () {
+
+  test("works for admins", async function () {
+    let appRes = await db.query(`SELECT username, job_id AS "jobId" FROM applications`);
+    let {username, jobId} = appRes.rows[0];
+
+    const resp = await request(app)
+      .patch(`/users/${username}/jobs/${jobId}`)
+      .send({newState: 'accepted'})
+      .set("authorization", `Bearer ${u2Token}`);
+
+    const application = resp.body.application;
+    expect(resp.statusCode).toEqual(200)
+    expect(application).toEqual({
+      username,
+      jobId,
+      currentState: 'accepted'
+    });
+  });
+
+  test("unauth for users", async function () {
+    let appRes = await db.query(`SELECT username, job_id AS "jobId" FROM applications`);
+    let {jobId} = appRes.rows[0];
+
+    const resp = await request(app)
+      .patch(`/users/u3/jobs/${jobId}`)
+      .send({newState: 'accepted'})
+      .set("authorization", `Bearer ${u3Token}`);
+
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for other users", async function () {
+    let appRes = await db.query(`SELECT username, job_id AS "jobId" FROM applications`);
+    let {jobId} = appRes.rows[0];
+
+    const resp = await request(app)
+      .patch(`/users/u3/jobs/${jobId}`)
+      .send({newState: 'accepted'})
+      .set("authorization", `Bearer ${u1Token}`);
+
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("error if job application not found", async function () {
+
+    const resp = await request(app)
+      .patch(`/users/u3/jobs/0`)
+      .send({newState: 'accepted'})
+      .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(404);
+  });
+
+  test("if newState is not enum type", async function () {
+    let appRes = await db.query(`SELECT username, job_id AS "jobId" FROM applications`);
+    let {jobId} = appRes.rows[0];
+
+    const resp = await request(app)
+      .patch(`/users/u3/jobs/${jobId}`)
+      .send({newState: 'YES'})
+      .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(500);
+  });
+
+  test("if no newState key", async function () {
+    let appRes = await db.query(`SELECT username, job_id AS "jobId" FROM applications`);
+    let {jobId} = appRes.rows[0];
+
+    const resp = await request(app)
+      .patch(`/users/u3/jobs/${jobId}`)
+      .send({})
+      .set("authorization", `Bearer ${u2Token}`);
+
+    expect(resp.statusCode).toEqual(400);
+  });
+
+}); 
 /************************************** GET /users */
 
 describe("GET /users", function () {
