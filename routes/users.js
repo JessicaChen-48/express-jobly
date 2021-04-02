@@ -12,6 +12,7 @@ const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
 const updateApplicationSchema = require("../schemas/updateApplication.json");
+const generator = require('generate-password');
 
 const router = express.Router();
 
@@ -36,6 +37,11 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
     const errs = validator.errors.map(e => e.stack);
     throw new BadRequestError(errs);
   }
+  const password = generator.generate({
+    length: 10,
+    numbers: true
+  })
+  req.body.password = password;
 
   const user = await User.register(req.body);
   const token = createToken(user);
@@ -91,25 +97,25 @@ router.patch("/:username", ensureLoggedIn, ensureCorrectUserOrAdmin, async funct
   return res.json({ user });
 });
 
-/** Allow user to apply for job 
- * 
+/** Allow user to apply for job
+ *
  * POST /[username]/jobs/[id] => {applied: jobId}
- * 
+ *
  * Authorization: admin or user
 */
 
 
 router.post("/:username/jobs/:id", ensureLoggedIn, ensureCorrectUserOrAdmin, async function (req, res, next) {
-  
+
   const application = await User.applyForJob(req.params.username, req.params.id);
 
   return res.json({applied: application.jobId});
 });
 
-/** Allow admin to update job current state for users 
- * 
+/** Allow admin to update job current state for users
+ *
  * PATCH /[username]/jobs/[id] {newState} => {username, jobId, currentState}
- * 
+ *
  * Authorization required: admin
 */
 
