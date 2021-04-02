@@ -156,6 +156,12 @@ class User {
     return user;
   }
 
+  /** Let a user or admin apply for a job 
+   * 
+   * Takes in username and jobId
+   * 
+   * Returns { username: username, jobId: job_id, currentState: applied }
+  */
   static async applyForJob(username, jobId) {
     const user = await User.get(username);
     const job = await Job.get(jobId);
@@ -180,15 +186,45 @@ class User {
       );
 
     const res = await db.query(
-      `INSERT INTO  applications (username, job_id)
-      VALUES ($1, $2)
-      RETURNING username, job_id AS "jobId"`,
+      `INSERT INTO  applications (username, job_id, current_state)
+      VALUES ($1, $2, 'applied')
+      RETURNING username, job_id AS "jobId", current_state AS "currentState"`,
       [username, parseInt(jobId)]
     );
 
     const application = res.rows[0];
 
     return application;
+  }
+
+  /** Allows admin to update job application currentState
+   * 
+   * Takes in username, jobId, and new state
+   * 
+   * Returns {username, jobId, currentState}
+  */
+
+  static async updateJobApplication(username, jobId, newState) {
+    const result = await db.query(
+        `SELECT username, job_id, current_state 
+        FROM applications
+        WHERE username=$1 AND job_id=$2`, [username, jobId]
+    );
+    const application = result.rows[0];
+
+    if (!application) {
+      throw new NotFoundError("Application not found");
+    }
+
+    const updateRes = await db.query(
+      `UPDATE applications
+      SET current_state=$1
+      RETURNING username, job_id AS "jobId", current_state AS "currentState"`, [newState]
+    );
+
+    const updatedApp = updateRes.rows[0];
+
+    return updatedApp;
   }
 
   /** Update user data with `data`.
