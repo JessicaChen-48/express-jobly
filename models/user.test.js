@@ -13,6 +13,7 @@ const {
   commonAfterEach,
   commonAfterAll,
 } = require("./_testCommon");
+const { updateJobApplication } = require("./user.js");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -163,7 +164,7 @@ describe("apply for job", function () {
 
     let application = await User.applyForJob("u2", jobId);
 
-    expect(application).toEqual({ username: "u2", jobId });
+    expect(application).toEqual({ username: "u2", jobId, currentState: "applied" });
   });
 
   test("does not allow duplicate applications", async function () {
@@ -198,7 +199,36 @@ describe("apply for job", function () {
     }
   });
 });
+/************************************** update application */
 
+describe("update job application state", function () {
+  test("works", async function () {
+    let appRes = await db.query(`SELECT username, job_id AS "jobId" FROM applications`);
+    let {username, jobId} = appRes.rows[0];
+
+    let updatedApp = await User.updateJobApplication(username, jobId, 'accepted');
+
+    expect(updatedApp).toEqual({
+      username,
+      jobId,
+      currentState: 'accepted'
+    });
+  }); 
+
+
+  test("errors when invalid enum value", async function () {
+    try {
+      let appRes = await db.query(`SELECT username, job_id AS "jobId" FROM applications`);
+      let {username, jobId} = appRes.rows[0];
+      await User.updateJobApplication(username, jobId, 'nope');
+    } catch (error) {
+      console.log("ERROR UPDATING JOB", error)
+      expect(error.message).toContain("invalid input value for enum state:")
+    }
+
+  });
+
+});
 /************************************** update */
 
 describe("update user", function () {
